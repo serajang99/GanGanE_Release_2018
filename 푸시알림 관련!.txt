@@ -1,0 +1,186 @@
+안드로이드 특정한 시간에 푸시notification이 날라오도록 하자!
+
+---------------------------------MANIFEST
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.kwongyo.alarmtest" >
+    <uses-permission android:name="android.permission.INTERNET"/>
+///
+안드로이드에서 서버가 있거나 테스트 할 경우 인터넷을 사용해야 한다. 인터넷 사용 환경에서 (인터넷을 사용하겠다는 권한을 주는것) 작성한다.
+
+    <uses-permission android:name="android.permission.VIBRATE"/>
+//
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+//
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity android:name=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <receiver android:name=".BroadcastD"></receiver>
+    </application>
+
+</manifest>
+
+
+
+
+---------------------------------MAIN ACTIVITY
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity {
+    private static int ONE_MINUTE = 5626;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        new AlarmHATT(getApplicationContext()).Alarm();
+
+    }
+    public class AlarmHATT {
+        private Context context;
+        public AlarmHATT(Context context) {
+            this.context=context;
+        }
+        public void Alarm() {
+            AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+////디바이스에 미래에 대한 알림같은 행위를 등록할 때 사용합니다.
+            Intent intent = new Intent(MainActivity.this, BroadcastD.class); 
+////알람이 발생했을 경우, broadcastD에게 방송을 해주기 위해서 명시적으로 알려줍니다.
+            PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0); 
+////
+MainActivity.this => PendingIntent를 부르려는 컨텍스트
+int requestCode => Private request code인데 현재는 사용하지 않아서 0으로
+Intent intent => 앞으로 불려질 Intent
+int flags => Intent에 대한 조건설정 플래그
+   FLAG_ONE_SHOT : 한번만 사용하고 다음에 이 PendingIntent가 불려지면 fail 하겠다.
+   FLAG_NO_CREATE : PendingIntent를 생성하지 않는다. PendingIntent가 실행중인것을 체크하기위함
+   FLAG_CANCEL_CURRENT : 이미 실행중인 PendingIntent가 있다면 이를 취소하고 새로 만듬
+   FLAG_UPDATE_CURRENT : 이미 실행중인 PendingIntent가 있다면 새로 만들지않고  extra data 만 교체하겠다.
+
+            Calendar calendar = Calendar.getInstance();
+            //알람시간 calendar에 set해주기
+
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 23, 12, 0);
+//yr,month,date를 다 세트 하고 당장 test할 시간에 푸쉬를 받을 미래의 시간 약 1분 정도를 기재해줍니다
+
+            //알람 예약
+            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+//RTC 실제 시간 기준, RTC_WAKEUP RTC와 동일, 대기상태일 경우 단말기를 활성 상태로 전환한 후 작업 수행
+        }
+    }
+
+
+서버없이 푸시알림!
+
+---------------------------------MANIFEST
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:text="Hello World!" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/alarmBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="alarmBtn"/>
+</LinearLayout>
+
+
+
+---------------------------------MAIN ACTIVITY
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import java.util.Calendar;
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button button = (Button)findViewById(R.id.alarmBtn);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NotificationManager notificationManager= (NotificationManager)MainActivity.this.getSystemService(MainActivity.this.NOTIFICATION_SERVICE);
+                Intent intent1 = new Intent(MainActivity.this.getApplicationContext(),MainActivity.class); //인텐트 생성.
+
+                
+ 
+                Notification.Builder builder = new Notification.Builder(getApplicationContext());
+                intent1.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);//현재 액티비티를 최상으로 올리고, 최상의 액티비티를 제외한 모든 액티비티를 
+
+                                                                                                      없앤다.
+
+                PendingIntent pendingNotificationIntent = PendingIntent.getActivity( MainActivity.this,0, intent1,PendingIntent.FLAG_UPDATE_CURRENT);
+                //PendingIntent는 일회용 인텐트 같은 개념입니다.
+FLAG_UPDATE_CURRENT - > 만일 이미 생성된 PendingIntent가 존재 한다면, 해당 Intent의 내용을 변경함.
+
+FLAG_CANCEL_CURRENT - .이전에 생성한 PendingIntent를 취소하고 새롭게 하나 만든다.
+
+FLAG_NO_CREATE -> 현재 생성된 PendingIntent를 반환합니다.
+
+FLAG_ONE_SHOT - >이 플래그를 사용해 생성된 PendingIntent는 단 한번밖에 사용할 수 없습니다
+                builder.setSmallIcon(R.drawable.on).setTicker("HETT").setWhen(System.currentTimeMillis())
+                        .setNumber(1).setContentTitle("푸쉬 제목").setContentText("푸쉬내용")
+                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setContentIntent(pendingNotificationIntent).setAutoCancel(true).setOngoing(true);
+              //해당 부분은 API 4.1버전부터 작동합니다.
+
+//setSmallIcon - > 작은 아이콘 이미지
+
+//setTicker - > 알람이 출력될 때 상단에 나오는 문구.
+
+//setWhen -> 알림 출력 시간.
+
+//setContentTitle-> 알림 제목
+
+//setConentText->푸쉬내용
+
+                notificationManager.notify(1, builder.build()); // Notification send
+            }
+        });
+    }
+
+
+
+

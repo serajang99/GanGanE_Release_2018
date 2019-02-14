@@ -1,0 +1,69 @@
+
+#define COUNT_MAX 10
+float average = 0;
+int index = 0;
+float values[COUNT_MAX];
+
+#define BLUE_MAX 70
+int redPin = 11;
+int greenPin = 10;
+int bluePin = 9;
+
+void setup() {
+  Serial.begin(9600);
+  
+  initialize();
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  
+  delay(3000);
+}
+
+void loop() {
+  float vol;
+  int sensorValue = analogRead(A0);  // read data
+  values[index] = (float)sensorValue/1024*5.0;  // convert to %
+  
+  // calc average and display value
+  if(index >= COUNT_MAX - 1) {
+    index=0;
+    Serial.println(calcAverage(),2);
+    
+    int iAvg = (int)(average*100);
+    if(iAvg < BLUE_MAX) {
+       int normalBreath = 255 - iAvg*(255/BLUE_MAX);
+       if(normalBreath < 0) normalBreath = 0;
+       setColor(0, 0, normalBreath); // blue led
+    } else {
+       if(iAvg > 255) iAvg = 255;
+       setColor(iAvg, 0, 0); // red
+    }
+  }
+  
+  // prepare next read
+  index++;
+  delay(50);
+}
+
+void initialize() {
+  for(int i=0; i<COUNT_MAX; i++) {
+    values[i] = 0;
+  }
+}
+
+float calcAverage() {
+  average = 0;
+  for(int i=0; i<COUNT_MAX; i++) {
+    average += values[i];
+  }
+  average = average / COUNT_MAX;
+  return average;
+}
+
+void setColor(int red, int green, int blue)
+{
+  analogWrite(redPin, red);
+  analogWrite(greenPin, green);
+  analogWrite(bluePin, blue); 
+}

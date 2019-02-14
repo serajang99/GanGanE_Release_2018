@@ -1,0 +1,42 @@
+푸시 알림 기능
+GCM (Google Cloud Messaging)
+Android tutorial:Push notification using GCM
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.kwongyo.alarmtest" >            ////manifest
+    <uses-permission android:name="android.permission.INTERNET"/>///안드로이드에서 서버가 있거나 테스트 할경우 인터넷 사용(인터넷을 사용하겠다는 권한을 주는것)
+    <uses-permission android:name="android.permission.VIBRATE"/>////푸쉬가 올 때 알람 진동-특정하게 알람 결정을 하려면 자바 코드에서 notification.defaults=Notification.DEFAULT_ALL 혹은 Notification.DEFAULT_VIBRATE 을 직접 주면 된다
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>///화면 깨움
+    
+
+	<application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity android:name=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <receiver android:name=".BroadcastD"></receiver>
+    </application>
+
+</manifest>
+
+
+출처: http://kwongyo.tistory.com/5 [오픈소스 읽어주는 남자]
+
+
+
+
+FCM(Firebase Cloud Message)

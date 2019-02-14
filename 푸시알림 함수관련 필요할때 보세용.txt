@@ -1,0 +1,12 @@
+푸시알림 기능 사용방법
+앱인벤터 화면에서 왼쪽팔레트부분 맨 밑에 있는 extension을 클릭합니당
+import extension을 누릅니당
+url을 누르고 
+https://downloads.sourceforge.net/project/puravidaapps/com.puravidaapps.TaifunNotification.aix
+↑ 요 url을 복사해서 적어줍니당
+import를 누릅니당
+
+그럼 extension 부분에 taifun notification이 생깁니당
+taifunnotification에 대한 함수 설명들은 요기↓에 있습니당
+http://puravidaapps.com/notification.php
+
